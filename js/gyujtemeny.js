@@ -1,61 +1,39 @@
-const state={items:[],category:"Összes",letter:"",query:""};
-
-const grid=document.getElementById("grid");
-const count=document.getElementById("count");
-const search=document.getElementById("search");
-const categories=document.getElementById("categories");
-const letters=document.getElementById("letters");
-const modal=document.getElementById("modal");
-const detail=document.getElementById("detail");
-
-async function init(){
-  const response=await fetch("data/gyujtemeny.json");
-  state.items=await response.json();
-  buildCategories();
-  buildLetters();
-  render();
+const types=[["1","metal sign","Fémtábla / metal cover"],["2","engraving","Gravírozott jelzés"],["3","trademark","Trademark / védjegy"],["4","decal","Lehúzó matrica"],["5","face plate","Homlokfelületi lemez"],["6","stand crest","Gépállvány jelzése"],["7","treadle","Öntött taposópedál"],["8","casting","Öntött jelzés"],["9","advertising graphics","Hirdetési grafika"],["10","award","Díj / kitüntetés"],["11","badge","Jelvény"],["12","hand wheel","Kézikerék különleges kialakítása"],["13","text","A hordozón található szöveg"]];
+let items=[],activeType="",activeInitial="",wizardText="";
+const $=s=>document.querySelector(s),esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const typeLabel=t=>types.find(x=>x[1]===t)?.[2]||t;
+const searchText=x=>[x.file,x.short,x.full,x.fantasy,x.city,x.country,(x.codes||[]).join(" "),x.source,x.text,(x.roles||[]).join(" ")].join(" ").toLocaleLowerCase("hu-HU");
+function buildTypes(){
+ $("#typeChoices").innerHTML=types.map(t=>`<button class="type-btn ${activeType===t[1]?"active":""}" data-type="${esc(t[1])}"><b>${t[0]}. ${esc(t[1])}</b><small>${esc(t[2])}</small></button>`).join("");
+ $("#aType").innerHTML='<option value="">Bármely jelzéstípus</option>'+types.map(t=>`<option value="${esc(t[1])}">${t[0]}. ${esc(t[1])}</option>`).join("");
+ document.querySelectorAll(".type-btn").forEach(b=>b.onclick=()=>{activeType=b.dataset.type;buildTypes();renderWizard()});
 }
-function buildCategories(){
-  const cats=["Összes",...new Set(state.items.map(x=>x.category))];
-  categories.innerHTML=cats.map(c=>`<button class="cat ${c==="Összes"?"active":""}" data-cat="${esc(c)}">${esc(c)}</button>`).join("");
-  categories.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{
-    state.category=b.dataset.cat;
-    categories.querySelectorAll(".cat").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active"); render();
-  });
+function filterWizard(){
+ const q=wizardText.toLocaleLowerCase("hu-HU");
+ return items.filter(x=>(!activeType||x.type===activeType||((x.codes||[]).map(v=>v==="centre decal"||v==="center decal"||v==="box decal"||v==="motor decal"?"decal":v).includes(activeType)))&&(!activeInitial||x.initial===activeInitial)&&(!q||searchText(x).includes(q)));
 }
-function buildLetters(){
-  const lettersArr=[...new Set(state.items.map(x=>x.name.trim().charAt(0).toUpperCase()))].sort((a,b)=>a.localeCompare(b,"hu"));
-  letters.innerHTML=lettersArr.map(l=>`<button class="letter" data-letter="${esc(l)}">${esc(l)}</button>`).join("");
-  document.querySelector('[data-letter=""]').onclick=()=>{state.letter="";render()};
-  letters.querySelectorAll(".letter").forEach(b=>b.onclick=()=>{state.letter=b.dataset.letter;render()});
+function filterAdvanced(){
+ const map=[["aShort","short"],["aFull","full"],["aFantasy","fantasy"],["aCity","city"],["aCountry","country"],["aSource","source"]];
+ return items.filter(x=>map.every(([id,k])=>{const q=$("#"+id).value.trim().toLocaleLowerCase("hu-HU");return !q||String(x[k]).toLocaleLowerCase("hu-HU").includes(q)})
+ &&(!$("#aText").value.trim()||searchText(x).includes($("#aText").value.trim().toLocaleLowerCase("hu-HU")))
+ &&(!$("#aType").value||x.type===$("#aType").value||((x.codes||[]).map(v=>["centre decal","center decal","box decal","motor decal"].includes(v)?"decal":v).includes($("#aType").value)))
+ &&(!$("#aInitial").value||x.initial===$("#aInitial").value));
 }
-function render(){
-  const q=state.query.toLocaleLowerCase("hu-HU");
-  const results=state.items.filter(x=>{
-    const text=[x.name,x.category,x.year,x.place,x.inventory,x.material,x.type,...(x.keywords||[])].join(" ").toLocaleLowerCase("hu-HU");
-    return (state.category==="Összes"||x.category===state.category)
-      &&(!state.letter||x.name.trim().charAt(0).toUpperCase()===state.letter)
-      &&(!q||text.includes(q));
-  });
-  count.textContent=`${results.length} találat`;
-  grid.innerHTML=results.length?results.map((x,i)=>card(x,i)).join(""):`<div class="no-result">Nincs a keresésnek megfelelő tárgy.</div>`;
-  grid.querySelectorAll(".card").forEach((c,i)=>c.onclick=()=>openDetail(results[i]));
-}
-function card(x,i){
-  const image=x.image?`<img src="${escAttr(x.image)}" alt="${escAttr(x.name)}">`:`<div class="placeholder">${esc(x.category)}</div>`;
-  return `<article class="card" tabindex="0"><div class="card-image">${image}</div><div class="card-body"><div class="tag">${esc(x.category)}</div><h3>${esc(x.name)}</h3><div class="meta">${esc(x.year||"")} ${x.place?"· "+esc(x.place):""}</div></div></article>`;
-}
-function openDetail(x){
-  const image=x.image?`<img class="detail-main-image" src="${escAttr(x.image)}" alt="${escAttr(x.name)}">`:`<div class="detail-main-image placeholder">${esc(x.category)}</div>`;
-  const fact=(label,value)=>value?`<div class="fact"><strong>${label}:</strong>${esc(value)}</div>`:"";
-  detail.innerHTML=`<div class="detail-grid"><div>${image}</div><div class="detail"><div class="tag">${esc(x.category)}</div><h2 id="detail-title">${esc(x.name)}</h2>${fact("Leltári szám",x.inventory)}${fact("Gyűjtemény",x.collection)}${fact("Tárgytípus",x.type)}${fact("Készítés / kor",x.year)}${fact("Származási hely",x.place)}${fact("Anyag",x.material)}</div></div><div class="description"><strong>Leírás</strong><p>${esc(x.description||"")}</p>${x.keywords?.length?`<p><strong>Kulcsszavak:</strong> ${x.keywords.map(esc).join(", ")}</p>`:""}</div>`;
-  modal.classList.add("show"); modal.setAttribute("aria-hidden","false");
-}
-function closeModal(){modal.classList.remove("show");modal.setAttribute("aria-hidden","true")}
-document.querySelectorAll("[data-close]").forEach(x=>x.onclick=closeModal);
-document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
-search.oninput=()=>{state.query=search.value.trim();render()};
-function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function escAttr(v){return esc(v)}
-init().catch(e=>{grid.innerHTML='<div class="no-result">A gyűjtemény adatai jelenleg nem tölthetők be.</div>';console.error(e)});
+function card(x,i){const img=x.image?`<img loading="lazy" src="${esc(x.image)}" alt="${esc(x.full||x.short||x.file)}">`:`<div class="placeholder">${esc(typeLabel(x.type))}</div>`;
+ return `<article class="card" data-i="${i}"><div class="card-img">${img}</div><div class="card-body"><div class="tag">${esc(typeLabel(x.type)||"Adatlap")}</div><h3>${esc(x.full||x.short||x.file)}</h3><div class="card-meta"><b>${esc(x.city)}</b>${x.city&&x.country?" · ":""}${esc(x.country)}<br>Iniciálé: ${x.initial==="yes"?"igen":"nem"} · ${esc(x.size)}</div><div class="filename">${esc(x.file)}</div></div></article>`}
+function renderResults(container,list){container.innerHTML=`<div class="results-head"><span>${list.length} találat</span><span>Az eredeti fájlnév minden találatnál megmarad.</span></div>`+(list.length?`<div class="result-grid">${list.map(card).join("")}</div>`:`<div class="no-result">Nincs a feltételeknek megfelelő kép.</div>`);
+ container.querySelectorAll(".card").forEach((c,i)=>c.onclick=()=>openDetail(list[i]));}
+function renderWizard(){ $("#wizardFilters").innerHTML=[activeType?`Jelzéstípus: ${typeLabel(activeType)}`:"Jelzéstípus: mindegy",activeInitial?`Iniciálé: ${activeInitial==="yes"?"igen":"nem"}`:"Iniciálé: mindegy",wizardText?`Szöveg: ${esc(wizardText)}`:""].map(x=>`<span class="chip">${x}</span>`).join("");renderResults($("#wizardResults"),filterWizard())}
+function renderAdvanced(){renderResults($("#advancedResults"),filterAdvanced())}
+function openDetail(x){const img=x.image?`<img class="detail-image" loading="lazy" src="${esc(x.image)}" alt="${esc(x.full||x.short||x.file)}">`:`<div class="detail-image placeholder">${esc(typeLabel(x.type))}</div>`;
+ const fact=(l,v)=>v!==undefined&&v!==""?`<div class="fact"><strong>${l}:</strong> ${esc(v)}</div>`:"";
+ $("#detail").innerHTML=`<div class="detail-grid"><div>${img}</div><div class="detail"><div class="tag">${esc(typeLabel(x.type)||"Adatlap")}</div><h2>${esc(x.full||x.short||"Cégjelzés")}</h2>${fact("Rövid név",x.short)}${fact("Fantázianév",x.fantasy)}${fact("Szerep",(x.roles||[]).join(", "))}${fact("Város",x.city)}${fact("Ország",x.country)}${fact("Kódnevek",(x.codes||[]).join(", "))}${fact("Méret",x.size)}${fact("Quelle",x.source)}${fact("Iniciálé",x.initial==="yes"?"igen":"nem")}${fact("Azonosító",x.id)}</div></div><div class="detail-description"><strong>Azonosításhoz használható keresési szöveg</strong><p>${esc(x.file)}</p><div class="raw-file"><b>Eredeti fájlnév:</b><br>${esc(x.file)}</div></div>`;
+ $("#modal").classList.add("show");$("#modal").setAttribute("aria-hidden","false")}
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));t.classList.add("active");$("#"+t.dataset.tab).classList.add("active")});
+document.querySelectorAll("[data-close]").forEach(x=>x.onclick=()=>{$("#modal").classList.remove("show");$("#modal").setAttribute("aria-hidden","true")});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){$("#modal").classList.remove("show");$("#modal").setAttribute("aria-hidden","true")}});
+document.querySelectorAll("[data-initial]").forEach(b=>b.onclick=()=>{activeInitial=b.dataset.initial;document.querySelectorAll("[data-initial]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderWizard()});
+$("#wizardText").oninput=e=>{wizardText=e.target.value;renderWizard()};
+["aShort","aFull","aFantasy","aCity","aCountry","aSource","aText","aType","aInitial"].forEach(id=>$( "#"+id).addEventListener("input",renderAdvanced));
+$("#clearAdvanced").onclick=()=>{["aShort","aFull","aFantasy","aCity","aCountry","aSource","aText"].forEach(id=>$("#"+id).value="");$("#aType").value="";$("#aInitial").value="";renderAdvanced()};
+fetch("data/gyujtemeny.json").then(r=>r.json()).then(d=>{items=d;buildTypes();renderWizard();renderAdvanced()}).catch(e=>{console.error(e);$("#wizardResults").innerHTML="<div class='no-result'>Az adatbázis nem tölthető be.</div>"});
