@@ -1,0 +1,104 @@
+[
+  {
+    "name": "Tulipános láda",
+    "category": "Néprajz",
+    "collection": "Néprajzi gyűjtemény",
+    "type": "Bútor",
+    "year": "19. század vége",
+    "place": "Tiszaföldvár",
+    "inventory": "TFGM-N-0001",
+    "material": "Festett fa",
+    "keywords": [
+      "láda",
+      "kelengye",
+      "népművészet"
+    ],
+    "image": "",
+    "description": "Mintaadatlap. A végleges változatban ide kerül a tárgy részletes története, használata és a múzeumi leírás."
+  },
+  {
+    "name": "Tiszazugi térkép",
+    "category": "Földrajz",
+    "collection": "Földrajzi gyűjtemény",
+    "type": "Térkép",
+    "year": "19. század",
+    "place": "Tiszazug",
+    "inventory": "TFGM-F-0042",
+    "material": "Papír",
+    "keywords": [
+      "térkép",
+      "Tiszazug",
+      "földrajz"
+    ],
+    "image": "",
+    "description": "Mintaadatlap történeti térképhez."
+  },
+  {
+    "name": "Tiszaföldvár főutcája",
+    "category": "Fotótár",
+    "collection": "Fotógyűjtemény",
+    "type": "Fénykép",
+    "year": "20. század eleje",
+    "place": "Tiszaföldvár",
+    "inventory": "TFGM-FOT-0128",
+    "material": "Fotópapír",
+    "keywords": [
+      "fotó",
+      "utcakép",
+      "Tiszaföldvár"
+    ],
+    "image": "",
+    "description": "Mintaadatlap történeti fényképhez."
+  },
+  {
+    "name": "Régi mezőgazdasági eszköz",
+    "category": "Helytörténet",
+    "collection": "Helytörténeti gyűjtemény",
+    "type": "Mezőgazdasági eszköz",
+    "year": "20. század",
+    "place": "Tiszazug",
+    "inventory": "TFGM-H-0311",
+    "material": "Fa, fém",
+    "keywords": [
+      "mezőgazdaság",
+      "gazdálkodás",
+      "eszköz"
+    ],
+    "image": "",
+    "description": "Mintaadatlap a Tiszazug mezőgazdasági múltjához kapcsolódó tárgyhoz."
+  },
+  {
+    "name": "Kézzel írt családi irat",
+    "category": "Dokumentum",
+    "collection": "Helytörténeti gyűjtemény",
+    "type": "Kézirat",
+    "year": "1897",
+    "place": "Tiszaföldvár",
+    "inventory": "TFGM-D-0077",
+    "material": "Papír, tinta",
+    "keywords": [
+      "irat",
+      "család",
+      "kézirat"
+    ],
+    "image": "",
+    "description": "Mintaadatlap történeti dokumentumhoz."
+  },
+  {
+    "name": "Meteorológiai műszer",
+    "category": "Földrajz",
+    "collection": "Természettudományi gyűjtemény",
+    "type": "Műszer",
+    "year": "20. század",
+    "place": "Tiszaföldvár",
+    "inventory": "TFGM-T-0019",
+    "material": "Fém, üveg",
+    "keywords": [
+      "meteorológia",
+      "műszer",
+      "időjárás"
+    ],
+    "image": "",
+    "description": "Mintaadatlap a meteorológiai megfigyelésekhez kapcsolódó műszerhez."
+  }
+]

@@ -1,0 +1,49 @@
+*{box-sizing:border-box}
+:root{--green:#536443;--green-dark:#35442e;--cream:#f1ede4;--paper:#fffdf8;--brown:#80664d;--text:#30332d;--muted:#77746c;--line:#ddd5c8}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+.site{max-width:1240px;margin:auto;background:var(--paper);min-height:100vh}
+.hero{background:var(--green);color:#fff;padding:42px clamp(24px,5vw,58px)}
+.brand{font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:.82;margin-bottom:10px}
+.hero h1{font:normal clamp(32px,4vw,48px) Georgia,serif;margin:0 0 10px}
+.hero p{margin:0;max-width:700px;font-size:16px;line-height:1.6}
+main{padding:28px clamp(18px,4vw,48px) 60px}
+.tools{position:sticky;top:0;background:var(--paper);padding-bottom:18px;z-index:2}
+.search{display:flex;align-items:center;border:1px solid var(--line);background:#fff;margin-bottom:14px}
+.search span{font-size:26px;padding-left:14px;color:var(--brown)}
+.search input{width:100%;border:0;outline:0;padding:15px 14px;font-size:16px;background:transparent}
+.categories{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.cat{border:1px solid #c9c0b2;background:#fff;padding:9px 14px;border-radius:20px;cursor:pointer;font-size:13px}
+.cat:hover,.cat.active{background:var(--green);color:#fff;border-color:var(--green)}
+.alphabet{display:flex;align-items:center;flex-wrap:wrap;gap:5px;background:#e8e1d5;padding:11px 13px;font-size:13px}
+.alphabet-label{font-weight:bold;margin-right:6px}
+.alphabet button,.letter{border:0;background:transparent;color:var(--brown);font-weight:bold;cursor:pointer;padding:3px 4px}
+.alphabet button:hover,.letter:hover{color:var(--green)}
+.summary{display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid var(--line);margin-bottom:18px;padding-bottom:12px}
+.summary h2{font:normal 25px Georgia,serif;margin:0}
+#count{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{background:#fff;border:1px solid var(--line);cursor:pointer;transition:.18s;overflow:hidden}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.11)}
+.card-image{height:230px;background:#d1c7b5;overflow:hidden}
+.card-image img{width:100%;height:100%;object-fit:cover;display:block}
+.placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#8c8b7d,#536443);font-size:12px;letter-spacing:1.5px;text-transform:uppercase}
+.card-body{padding:16px 17px 18px}
+.tag{color:var(--brown);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.card h3{font:normal 21px Georgia,serif;margin:7px 0}
+.meta{font-size:13px;color:var(--muted)}
+.no-result{grid-column:1/-1;padding:40px;text-align:center;border:1px solid var(--line);background:#fff}
+footer{text-align:center;border-top:1px solid var(--line);padding:25px;color:var(--muted);font-size:12px}
+.modal{display:none;position:fixed;inset:0;z-index:1000}
+.modal.show{display:block}
+.modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72)}
+.modal-card{position:relative;width:min(920px,calc(100% - 30px));max-height:90vh;overflow:auto;margin:5vh auto;background:var(--paper);padding:30px}
+.close{position:absolute;right:13px;top:7px;border:0;background:none;font-size:34px;cursor:pointer;color:#555}
+.detail-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:30px}
+.detail-main-image{width:100%;height:380px;object-fit:cover;background:#d1c7b5}
+.detail h2{font:normal 34px Georgia,serif;margin:7px 0 20px}
+.fact{border-bottom:1px solid var(--line);padding:8px 0;font-size:14px;line-height:1.5}
+.fact strong{display:inline-block;width:145px;color:var(--brown)}
+.description{border-top:1px solid var(--line);margin-top:25px;padding-top:20px;font:16px/1.7 Georgia,serif}
+@media(max-width:850px){.grid{grid-template-columns:repeat(2,1fr)}.detail-grid{grid-template-columns:1fr}.detail-main-image{height:300px}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.hero{padding:30px 22px}.summary{display:block}.summary h2{margin-bottom:7px}.alphabet{line-height:1.9}.modal-card{margin:2vh auto;padding:22px}.detail h2{font-size:29px}}

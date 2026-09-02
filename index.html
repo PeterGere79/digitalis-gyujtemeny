@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digitális Gyűjtemény – Tiszazugi Földrajzi Múzeum</title>
+<meta name="description" content="A Tiszazugi Földrajzi Múzeum digitális gyűjteménye.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="site">
+  <header class="hero">
+    <div class="brand">Tiszazugi Földrajzi Múzeum</div>
+    <h1>Digitális Gyűjtemény</h1>
+    <p>Fedezze fel múzeumunk tárgyait, fényképeit és dokumentumait.</p>
+  </header>
+
+  <main>
+    <section class="tools" aria-label="Keresés és szűrés">
+      <label class="search">
+        <span>⌕</span>
+        <input id="search" type="search" placeholder="Keresés tárgynév, település, leltári szám vagy kulcsszó alapján…">
+      </label>
+      <div id="categories" class="categories"></div>
+      <div class="alphabet">
+        <span class="alphabet-label">Böngészés:</span>
+        <button data-letter="">Összes</button>
+        <div id="letters"></div>
+      </div>
+    </section>
+
+    <section class="summary">
+      <h2>A gyűjtemény tárgyai</h2>
+      <div id="count"></div>
+    </section>
+
+    <section id="grid" class="grid" aria-live="polite"></section>
+  </main>
+
+  <footer>
+    Tiszazugi Földrajzi Múzeum · Tiszaföldvár
+  </footer>
+</div>
+
+<div id="modal" class="modal" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <article class="modal-card" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <button class="close" aria-label="Bezárás" data-close>×</button>
+    <div id="detail"></div>
+  </article>
+</div>
+
+<script src="js/gyujtemeny.js"></script>
+</body>
+</html>
