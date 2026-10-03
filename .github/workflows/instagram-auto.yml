@@ -79,7 +79,7 @@ jobs:
         run: |
           python automation/fotonegativ_auto.py
 
-            - name: Commit publication state
+      - name: Commit publication state
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "museum-instagram-bot"
