@@ -19,6 +19,7 @@ DATA = ROOT / "automation" / "fotonegativ_adatok.json"
 STATE = ROOT / "automation" / "fotonegativ_state.json"
 PENDING = ROOT / "automation" / "pending_fotonegativ.json"
 OUT = ROOT / "generated-instagram"
+LOGO = ROOT / "automation" / "muzeum_logo.png"
 
 OWNER = "PeterGere79"
 REPO = "digitalis-gyujtemeny"
@@ -372,6 +373,19 @@ def make_photo_graphic(item, output_path):
             18
         )
     )
+
+    # A múzeum 70 éves jubileumi logója a keret jobb alsó részén.
+    # A fotóterületet nem takarja, csak az alsó keretsávba kerül.
+    if LOGO.exists():
+        logo = Image.open(LOGO).convert("RGBA")
+        logo.thumbnail((105, 105), Image.Resampling.LANCZOS)
+        logo_x = 885
+        logo_y = 1140
+        canvas.paste(
+            logo,
+            (logo_x, logo_y),
+            logo
+        )
 
     output_path.parent.mkdir(
         parents=True,
