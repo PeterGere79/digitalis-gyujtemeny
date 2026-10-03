@@ -1,8 +1,9 @@
 {
   "published_ids": [
-    "988"
+    "988",
+    "629"
   ],
-  "last_published_at": "2026-10-03T20:57:07+00:00",
+  "last_published_at": "2026-10-03T21:11:03.596787+00:00",
   "history": [
     {
       "leltari_szam": "988",
@@ -10,6 +11,13 @@
       "media_id": "17935693083391016",
       "image_path": "generated-instagram/fotonegativ_988_Instagram.png",
       "published_at": "2026-10-03T20:57:07+00:00"
+    },
+    {
+      "leltari_szam": "629",
+      "tema": "Kilátás a Felső-Pusztahegyről…",
+      "media_id": "18432246625177705",
+      "image_path": "generated-instagram/fotonegativ_629_Instagram.png",
+      "published_at": "2026-10-03T21:11:03.596787+00:00"
     }
   ]
 }
