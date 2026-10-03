@@ -79,12 +79,13 @@ jobs:
         run: |
           python automation/fotonegativ_auto.py
 
-      - name: Commit publication state
+            - name: Commit publication state
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "museum-instagram-bot"
             git config user.email "museum-instagram-bot@users.noreply.github.com"
             git add automation/fotonegativ_state.json automation/pending_fotonegativ.json
+            git commit -m "Record Instagram photo-negative publication"
             git pull --rebase origin main
             git push
           else
