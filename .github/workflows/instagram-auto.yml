@@ -15,7 +15,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      - name: Sync latest main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
       - name: Python
         uses: actions/setup-python@v5
         with:
