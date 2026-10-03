@@ -1,9 +1,10 @@
 {
   "published_ids": [
     "988",
-    "629"
+    "629",
+    "1947"
   ],
-  "last_published_at": "2026-10-03T21:11:03.596787+00:00",
+  "last_published_at": "2026-10-03T21:20:18.695971+00:00",
   "history": [
     {
       "leltari_szam": "988",
@@ -18,6 +19,13 @@
       "media_id": "18432246625177705",
       "image_path": "generated-instagram/fotonegativ_629_Instagram.png",
       "published_at": "2026-10-03T21:11:03.596787+00:00"
+    },
+    {
+      "leltari_szam": "1947",
+      "tema": "Toszkánoszlopos ház",
+      "media_id": "18135237670656684",
+      "image_path": "generated-instagram/fotonegativ_1947_Instagram.png",
+      "published_at": "2026-10-03T21:20:18.695971+00:00"
     }
   ]
 }
