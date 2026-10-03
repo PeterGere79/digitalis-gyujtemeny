@@ -1,5 +1,15 @@
 {
-  "published_ids": [],
-  "last_published_at": null,
-  "history": []
+  "published_ids": [
+    "988"
+  ],
+  "last_published_at": "2026-10-03T20:57:07+00:00",
+  "history": [
+    {
+      "leltari_szam": "988",
+      "tema": "Vaskori erőd északi rámpáján.",
+      "media_id": "17935693083391016",
+      "image_path": "generated-instagram/fotonegativ_988_Instagram.png",
+      "published_at": "2026-10-03T20:57:07+00:00"
+    }
+  ]
 }
