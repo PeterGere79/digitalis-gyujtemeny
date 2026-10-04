@@ -2,9 +2,10 @@
   "published_ids": [
     "988",
     "629",
-    "1947"
+    "1947",
+    "1596"
   ],
-  "last_published_at": "2026-10-03T21:20:18.695971+00:00",
+  "last_published_at": "2026-10-04T07:03:07.546369+00:00",
   "history": [
     {
       "leltari_szam": "988",
@@ -26,6 +27,13 @@
       "media_id": "18135237670656684",
       "image_path": "generated-instagram/fotonegativ_1947_Instagram.png",
       "published_at": "2026-10-03T21:20:18.695971+00:00"
+    },
+    {
+      "leltari_szam": "1596",
+      "tema": "Övzátony és sarlólapos viszonya",
+      "media_id": "17900380965598788",
+      "image_path": "generated-instagram/fotonegativ_1596_Instagram.png",
+      "published_at": "2026-10-04T07:03:07.546369+00:00"
     }
   ]
 }
