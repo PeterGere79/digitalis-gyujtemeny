@@ -1,5 +1,6 @@
 import base64
 import json
+import math
 import os
 import random
 import time
@@ -8,9 +9,10 @@ from io import BytesIO
 from pathlib import Path
 from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 
 from openai import OpenAI
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps, UnidentifiedImageError
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -118,6 +120,110 @@ def save_json(path, value):
     )
 
 
+class MissingPhotoError(Exception):
+    """A leltári rekordhoz tartozó kép biztosan hiányzik vagy nem képfájl."""
+
+
+# A múzeumi weboldal a hiányzó fényképek helyén egy kamerát ábrázoló,
+# átlós „HIÁNYZÓ FOTÓ” feliratú helyettesítő képet jelenít meg.
+# A képernyőképből számolt perceptuális hash: stabil marad átméretezéskor.
+MISSING_PHOTO_PHASH = int("6c69c396b4831d78", 16)
+MISSING_PHOTO_PHASH_MAX_DISTANCE = 8
+
+
+def perceptual_hash(image_data):
+    """64 bites pHash kizárólag Pillow + Python használatával."""
+    with Image.open(BytesIO(image_data)) as source:
+        gray = ImageOps.fit(
+            source.convert("L"),
+            (32, 32),
+            method=Image.Resampling.LANCZOS,
+        )
+    pixels = list(gray.getdata())
+    size = 32
+    coefficients = {}
+
+    # A 8x8-as alacsony frekvenciájú DCT-együtthatók elegendők a mintához.
+    cos_x = [
+        [math.cos((2 * x + 1) * u * math.pi / (2 * size)) for x in range(size)]
+        for u in range(8)
+    ]
+    cos_y = [
+        [math.cos((2 * y + 1) * v * math.pi / (2 * size)) for y in range(size)]
+        for v in range(8)
+    ]
+
+    for u in range(8):
+        au = 1 / math.sqrt(size) if u == 0 else math.sqrt(2 / size)
+        for v in range(8):
+            av = 1 / math.sqrt(size) if v == 0 else math.sqrt(2 / size)
+            total = 0.0
+            for x in range(size):
+                cx = cos_x[u][x]
+                base = x * size
+                for y in range(size):
+                    total += pixels[base + y] * cx * cos_y[v][y]
+            coefficients[(u, v)] = total * au * av
+
+    values = [
+        coefficients[(u, v)]
+        for u in range(8)
+        for v in range(8)
+        if (u, v) != (0, 0)
+    ]
+    median = sorted(values)[len(values) // 2]
+    result = 0
+    for u in range(8):
+        for v in range(8):
+            if (u, v) == (0, 0):
+                continue
+            result = (result << 1) | int(coefficients[(u, v)] > median)
+    return result
+
+
+def is_missing_photo_placeholder(image_data):
+    """Felisméri a weboldal „HIÁNYZÓ FOTÓ” helyettesítő képét."""
+    candidate_hash = perceptual_hash(image_data)
+    distance = (candidate_hash ^ MISSING_PHOTO_PHASH).bit_count()
+    return distance <= MISSING_PHOTO_PHASH_MAX_DISTANCE
+
+
+def get_verified_image_bytes(url):
+    """Letölti és ellenőrzi a fotót; a valóban hiányzó képet külön jelzi."""
+    request = Request(
+        url,
+        headers={
+            "User-Agent": "MuzeumiTartalomkeszito/1.0"
+        },
+    )
+
+    try:
+        with urlopen(request, timeout=25) as response:
+            image_data = response.read()
+    except HTTPError as exc:
+        if exc.code in (404, 410):
+            raise MissingPhotoError(f"HTTP {exc.code}") from exc
+        # Az 5xx, 403 és más szerverhibákat nem jelöljük végleg hiányzó képnek.
+        raise
+
+    if not image_data:
+        raise MissingPhotoError("üres válasz")
+
+    try:
+        with Image.open(BytesIO(image_data)) as image:
+            image.verify()
+    except (UnidentifiedImageError, OSError, ValueError) as exc:
+        # Például a szerver 200-as státusszal hibaoldalt küld kép helyett.
+        raise MissingPhotoError("a letöltött fájl nem érvényes kép") from exc
+
+    if is_missing_photo_placeholder(image_data):
+        raise MissingPhotoError(
+            'a weboldal a „HIÁNYZÓ FOTÓ” helyettesítő képet adja vissza'
+        )
+
+    return image_data
+
+
 def choose_photo():
     data = load_json(
         DATA,
@@ -140,6 +246,13 @@ def choose_photo():
             []
         )
     )
+    missing_images = set(
+        str(x)
+        for x in state.get(
+            "missing_image_ids",
+            []
+        )
+    )
 
     candidates = [
         item
@@ -147,21 +260,67 @@ def choose_photo():
         if item.get("automatizalhato")
         and item.get("kep_url")
         and item.get("leiras")
-        and str(
-            item.get(
-                "leltari_szam"
-            )
-        ) not in published
+        and str(item.get("leltari_szam")) not in published
+        and str(item.get("leltari_szam")) not in missing_images
     ]
 
     if not candidates:
-        raise RuntimeError(
-            "Nincs több nem publikált, részletesen leírt fotónegatív."
+        print("Nincs több ellenőrizhető, nem publikált fotónegatív.")
+        return None
+
+    random.shuffle(candidates)
+    newly_missing = []
+    transient_errors = 0
+
+    for item in candidates:
+        inventory_number = str(item.get("leltari_szam"))
+        try:
+            image_data = get_verified_image_bytes(item["kep_url"])
+        except MissingPhotoError as exc:
+            print(
+                f"Hiányzó vagy hibás kép, kihagyás: "
+                f"{inventory_number} ({exc})"
+            )
+            missing_images.add(inventory_number)
+            newly_missing.append(inventory_number)
+            continue
+        except Exception as exc:
+            # Átmeneti hálózati hiba esetén nem jegyezzük fel véglegesen hiányzóként.
+            transient_errors += 1
+            print(
+                f"A kép most nem ellenőrizhető: {inventory_number} "
+                f"({type(exc).__name__}: {exc})"
+            )
+            continue
+
+        item["_image_bytes"] = image_data
+        if newly_missing:
+            state["missing_image_ids"] = sorted(missing_images)
+            save_json(STATE, state)
+            print(
+                f"Kihagyott hiányzó képek száma ebben a futásban: "
+                f"{len(newly_missing)}"
+            )
+        print(f"A kép elérhető és ellenőrizve: {inventory_number}")
+        return item
+
+    if newly_missing:
+        state["missing_image_ids"] = sorted(missing_images)
+        save_json(STATE, state)
+        print(
+            f"A hiányzó képek leltári számait elmentettem: "
+            f"{len(newly_missing)} új rekord."
         )
 
-    return random.choice(
-        candidates
-    )
+    if transient_errors:
+        print(
+            "Most nem sikerült elérhető fotót ellenőrizni. "
+            "Nem készül poszt; a következő futás újrapróbálja az "
+            "átmeneti hibák miatt kihagyott rekordokat."
+        )
+    else:
+        print("A fennmaradó rekordokhoz nem található érvényes fotó.")
+    return None
 
 
 def caption_for_photo(item):
@@ -246,9 +405,9 @@ def load_font(size, bold=False):
 
 
 def make_photo_graphic(item, output_path):
-    image_data = get_bytes(
-        item["kep_url"]
-    )
+    image_data = item.get("_image_bytes")
+    if image_data is None:
+        image_data = get_bytes(item["kep_url"])
 
     original = Image.open(
         BytesIO(image_data)
@@ -437,6 +596,9 @@ def prepare(force=False):
             return
 
     item = choose_photo()
+    if item is None:
+        print("Nem készült új bejegyzés, mert nem találtam ellenőrzött fotót.")
+        return
 
     print(
         "Kiválasztott fotónegatív:",
