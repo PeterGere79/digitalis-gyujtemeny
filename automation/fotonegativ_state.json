@@ -3,9 +3,10 @@
     "988",
     "629",
     "1947",
-    "1596"
+    "1596",
+    "1813"
   ],
-  "last_published_at": "2026-10-04T07:03:07.546369+00:00",
+  "last_published_at": "2026-10-04T07:27:29.750645+00:00",
   "history": [
     {
       "leltari_szam": "988",
@@ -34,6 +35,13 @@
       "media_id": "17900380965598788",
       "image_path": "generated-instagram/fotonegativ_1596_Instagram.png",
       "published_at": "2026-10-04T07:03:07.546369+00:00"
+    },
+    {
+      "leltari_szam": "1813",
+      "tema": "Gimnáziumépítés",
+      "media_id": "17924048421202590",
+      "image_path": "generated-instagram/fotonegativ_1813_Instagram.png",
+      "published_at": "2026-10-04T07:27:29.750645+00:00"
     }
   ]
 }
